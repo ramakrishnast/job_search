@@ -189,7 +189,7 @@ class OpenAIProvider:
     text blocks → text parts, base64 image blocks → data-URL image parts.
     """
 
-    REASONING_PREFIXES = ("gpt-5", "o1", "o3", "o4")
+    REASONING_PREFIXES = ("gpt-5", "gpt-6", "o1", "o3", "o4")
 
     def __init__(self, api_key: str, *, base_url: str | None, timeout: float) -> None:
         import openai

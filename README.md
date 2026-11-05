@@ -60,7 +60,7 @@ Open `http://localhost:<PORT>`. With `make` installed, `make demo` runs the same
 
 Your data lives in `./data` on the host: the SQLite DB, whiteboard images and backups. `./config` is mounted read-only, so you can edit companies and filters, then run `make restart`.
 
-**LLM provider.** Set `OPENAI_API_KEY` to use OpenAI. Defaults are `gpt-5-mini` for job-description parsing, which runs on every new job, and `gpt-5` for scoring, tailoring and interviews. Override them with `LLM_MODEL_PARSE` / `LLM_MODEL_DEFAULT` / `LLM_MODEL_INTERVIEW`. `ANTHROPIC_API_KEY` is also supported (Claude Haiku/Sonnet defaults); `LLM_PROVIDER` picks one if both keys are set.
+**LLM provider.** Set `OPENAI_API_KEY` to use OpenAI. Every task (job-description parsing, scoring, tailoring, interviews) uses `gpt-6-luna` by default. Set `LLM_PRICE_INPUT_PER_MTOK` / `LLM_PRICE_OUTPUT_PER_MTOK` to its price so the budget guard is accurate. Override models with `LLM_MODEL_PARSE` / `LLM_MODEL_DEFAULT` / `LLM_MODEL_INTERVIEW`. `ANTHROPIC_API_KEY` is also supported (Claude Haiku/Sonnet defaults); `LLM_PROVIDER` picks one if both keys are set.
 
 **Without any API key** the app still works:
 
@@ -156,8 +156,8 @@ Everything is in `.env` (see `.env.example`):
 | `ANTHROPIC_API_KEY` | — | alternative provider |
 | `LLM_PROVIDER` | `auto` | `auto` (OpenAI if its key is set) · `openai` · `anthropic` |
 | `OPENAI_BASE_URL` | — | Azure OpenAI / OpenAI-compatible gateway |
-| `LLM_MODEL_PARSE` | `gpt-5-mini` | JD parsing (runs on every new job) |
-| `LLM_MODEL_DEFAULT` | `gpt-5` | scoring, tailoring, STAR stories, scorecards |
+| `LLM_MODEL_PARSE` | `gpt-6-luna` | JD parsing (runs on every new job) |
+| `LLM_MODEL_DEFAULT` | `gpt-6-luna` | scoring, tailoring, STAR stories, scorecards |
 | `LLM_MODEL_INTERVIEW` | = default | live interviewer turns |
 | `LLM_PRICE_INPUT_PER_MTOK` / `_OUTPUT_` | — | price override for models not in the built-in table (budget accuracy) |
 | `LLM_DAILY_BUDGET_USD` | `5` | cap for background (auto-scoring) spend per rolling 24h |

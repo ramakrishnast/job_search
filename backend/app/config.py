@@ -14,9 +14,9 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 
 # (parse model, default model) per provider. Parsing runs on every new job → cheapest model.
 PROVIDER_DEFAULTS: dict[str, tuple[str, str]] = {
-    "openai": ("gpt-5-mini", "gpt-5"),
+    "openai": ("gpt-6-luna", "gpt-6-luna"),
     "anthropic": ("claude-haiku-5-5", "claude-sonnet-5-5"),
-    "auto": ("gpt-5-mini", "gpt-5"),
+    "auto": ("gpt-6-luna", "gpt-6-luna"),
 }
 
 

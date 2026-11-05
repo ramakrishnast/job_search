@@ -32,7 +32,7 @@ def test_settings_auto_selects_openai(monkeypatch):
     monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
     s = Settings()
     assert s.llm_provider == "openai" and s.llm_configured
-    assert s.llm_model_parse == "gpt-5-mini" and s.llm_model_default == "gpt-5"
+    assert s.llm_model_parse == s.llm_model_default == s.interview_model == "gpt-6-luna"
     monkeypatch.setenv("LLM_MODEL_DEFAULT", "gpt-4.1")
     assert Settings().llm_model_default == "gpt-4.1"
 
