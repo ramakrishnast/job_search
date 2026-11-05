@@ -44,7 +44,7 @@ export default function Dashboard() {
         <Stat label="Applied" value={p.applied_total} sub={`${p.stage_counts.interviewing ?? 0} interviewing`} />
         <Stat label="Response rate" value={pct(p.response_rate)} sub={`${p.responded_total} of ${p.applied_total} applications`} />
         <Stat label="Mock interviews" value={data.interviews.completed} sub={Object.entries(data.interviews.averages_by_kind).map(([k, v]) => `${KIND_LABELS[k] ?? k}: ${v}`).join(" · ") || "none yet"} />
-        <Stat label="Claude spend" value={`$${data.llm.cost_30d.toFixed(2)}`} sub={`30 days · $${data.llm.cost_24h.toFixed(2)} last 24h`} />
+        <Stat label="LLM spend" value={`$${data.llm.cost_30d.toFixed(2)}`} sub={`30 days · $${data.llm.cost_24h.toFixed(2)} last 24h`} />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">

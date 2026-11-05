@@ -76,7 +76,7 @@ export default function Profile() {
   return (
     <div className="space-y-4">
       <h1 className="text-xl font-semibold">Profile</h1>
-      <p className="text-sm text-slate-500">Stored only in your local SQLite database ({status?.data_dir}). Everything Claude writes is grounded in this profile — it never invents experience.</p>
+      <p className="text-sm text-slate-500">Stored only in your local SQLite database ({status?.data_dir}). Everything the LLM writes is grounded in this profile — it never invents experience.</p>
       <div className="grid gap-4 lg:grid-cols-2">
         <Card title="Basics">
           <div className="grid gap-3 sm:grid-cols-2">
@@ -93,7 +93,7 @@ export default function Profile() {
           <div className="mt-3 flex justify-end"><Button variant="primary" loading={saveBasic.isPending} onClick={() => saveBasic.mutate()}>Save</Button></div>
         </Card>
         <Card title="Full resume" actions={data.structured_method && <Badge tone="blue">structured: {data.structured_method}</Badge>}>
-          <Field label="Paste your full resume (plain text)" hint="Saved locally and structured into experiences/bullets with stable ids (Claude if configured, otherwise a heuristic parser you can correct below).">
+          <Field label="Paste your full resume (plain text)" hint="Saved locally and structured into experiences/bullets with stable ids (LLM if configured, otherwise a heuristic parser you can correct below).">
             <textarea className={inputCls + " h-80 font-mono text-xs"} value={resume} onChange={(e) => setResume(e.target.value)} />
           </Field>
           <ErrorBox error={saveResume.error} />
@@ -113,7 +113,7 @@ export default function Profile() {
       {status && (
         <Card title="Settings (from .env)">
           <dl className="grid gap-2 text-sm sm:grid-cols-3">
-            <div><dt className="text-xs text-slate-500">Claude API</dt><dd>{status.llm.configured ? "configured" : "not configured"}</dd></div>
+            <div><dt className="text-xs text-slate-500">LLM provider</dt><dd>{status.llm.configured ? status.llm.provider : "not configured"}</dd></div>
             <div><dt className="text-xs text-slate-500">JD parse model</dt><dd>{status.llm.model_parse}</dd></div>
             <div><dt className="text-xs text-slate-500">Scoring / tailoring model</dt><dd>{status.llm.model_default}</dd></div>
             <div><dt className="text-xs text-slate-500">Interviewer model</dt><dd>{status.llm.model_interview}</dd></div>

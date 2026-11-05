@@ -1,3 +1,7 @@
+# JobPilot — single-user, no login. Configure everything in .env (copy from .env.example).
+#   PORT          host port to serve on (default 8000)            → http://localhost:PORT
+#   BIND_ADDRESS  host interface (default 127.0.0.1 = this machine only).
+#                 0.0.0.0 exposes it to your network — there is NO login, so only do that behind a VPN/firewall.
 services:
   jobpilot:
     build: .
@@ -8,10 +12,9 @@ services:
     environment:
       DATA_DIR: /data
     ports:
-      # Bound to localhost only: single-user app with no login.
-      - "127.0.0.1:8000:8000"
+      - "${BIND_ADDRESS:-127.0.0.1}:${PORT:-8000}:8000"
     volumes:
-      - ./data:/data            # SQLite DB, exports, whiteboard images, backups (gitignored)
+      - ./data:/data            # SQLite DB, whiteboard images, backups (gitignored)
       - ./config:/app/config:ro # edit companies/filters without rebuilding
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=4).status == 200 else 1)"]

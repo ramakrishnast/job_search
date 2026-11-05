@@ -316,6 +316,7 @@ def _auto_score(db: Session, jobs: list[Job], limit: int) -> int:
     profile = get_profile(db)
     jobs = sorted(jobs, key=lambda j: j.posted_at or j.first_seen_at, reverse=True)[: max(0, limit)]
     n = 0
+    failures = 0
     for j in jobs:
         try:
             score_job(db, llm, j, profile, interactive=False)
@@ -327,6 +328,13 @@ def _auto_score(db: Session, jobs: list[Job], limit: int) -> int:
             break
         except LLMError as e:
             log.warning("auto-score failed for job %s: %s", j.id, e)
+            failures += 1
+            if failures >= 3:  # bad key / provider outage: don't burn through the whole batch
+                notify(db, "discovery_error", "Auto-scoring stopped after repeated LLM errors", str(e)[:500], "/profile")
+                db.commit()
+                break
+            continue
+        failures = 0
     return n
 
 

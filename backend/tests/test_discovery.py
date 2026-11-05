@@ -109,3 +109,19 @@ def test_same_title_in_many_cities_gets_one_pipeline_card(isolated, monkeypatch,
     gh_jobs = db.query(Job).join(Company).filter(Company.name == "GH Co").all()
     assert len(gh_jobs) == 3 and all(j.matches_filter for j in gh_jobs)
     assert db.query(Application).count() == 1
+
+
+def test_auto_score_stops_after_repeated_llm_errors(isolated, monkeypatch, db, fake_llm):
+    write_companies(isolated, monkeypatch)
+
+    def boom(req):
+        raise RuntimeError("401 invalid api key")
+
+    p = fake_llm({"jd_parse": [boom]})
+    gh = load_fixture("greenhouse.json")
+    base = gh["jobs"][0]
+    gh["jobs"] = [{**base, "id": 6000 + i, "title": f"Senior AI Engineer {i}"} for i in range(6)]
+    rid = run_discovery("manual", client=make_client({"gh": gh, "lever": [], "ashby": {"jobs": []}}))
+    assert p.count("jd_parse") == 3
+    assert db.get(DiscoveryRun, rid).scored_count == 0
+    assert db.query(Notification).filter(Notification.title.like("Auto-scoring stopped%")).count() == 1

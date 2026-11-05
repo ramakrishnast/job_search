@@ -151,7 +151,7 @@ export interface JobDetail extends JobSummary {
 
 export interface Status {
   version: string;
-  llm: { configured: boolean; model_parse: string; model_default: string; model_interview: string; daily_budget_usd: number; spent_24h_usd: number };
+  llm: { configured: boolean; provider: string; model_parse: string; model_default: string; model_interview: string; daily_budget_usd: number; spent_24h_usd: number };
   discovery: { running: boolean; schedule_enabled: boolean; next_run: string | null; schedule: string; last_run: DiscoveryRun | null };
   counts: Record<string, number>;
   data_dir: string;

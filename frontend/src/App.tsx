@@ -114,8 +114,8 @@ export default function App() {
         {status && (
           <div className="mt-8 space-y-1 px-2 text-[11px] text-slate-500">
             <div>
-              Claude:{" "}
-              {status.llm.configured ? <span className="text-emerald-600">connected</span> : <span className="text-amber-600">no API key</span>}
+              LLM:{" "}
+              {status.llm.configured ? <span className="text-emerald-600">{status.llm.provider} · {status.llm.model_default}</span> : <span className="text-amber-600">no API key</span>}
             </div>
             <div>Spend 24h: ${status.llm.spent_24h_usd.toFixed(2)} / ${status.llm.daily_budget_usd.toFixed(0)}</div>
             <div>Next discovery: {status.discovery.next_run ? fmtDate(status.discovery.next_run, true) : "—"}</div>
@@ -135,7 +135,7 @@ export default function App() {
         </header>
         {status && !status.llm.configured && (
           <div className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-xs text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
-            No <code>ANTHROPIC_API_KEY</code> set — fit scores are keyword estimates; tailoring, story generation and live interviews need a key in <code>.env</code>.
+            No LLM API key set — fit scores are keyword estimates; tailoring, story generation and live interviews need <code>OPENAI_API_KEY</code> in <code>.env</code> (then restart the container).
           </div>
         )}
         <main className="mx-auto w-full max-w-7xl flex-1 p-4 md:p-6">

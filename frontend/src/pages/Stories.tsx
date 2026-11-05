@@ -56,7 +56,7 @@ function StoryForm({ story, data, onClose }: { story: Story | null; data: Storie
       <ErrorBox error={save.error} />
       <div className="flex justify-end gap-2">
         <Button onClick={() => save.mutate(false)} loading={save.isPending} disabled={!title}>Save as written</Button>
-        <Button variant="primary" onClick={() => save.mutate(true)} loading={save.isPending} disabled={!title || !status?.llm.configured} title={status?.llm.configured ? "" : "Needs ANTHROPIC_API_KEY"}>
+        <Button variant="primary" onClick={() => save.mutate(true)} loading={save.isPending} disabled={!title || !status?.llm.configured} title={status?.llm.configured ? "" : "Needs OPENAI_API_KEY"}>
           <Sparkles className="h-4 w-4" /> Save & generate STAR
         </Button>
       </div>
@@ -78,7 +78,7 @@ export default function Stories() {
         <h1 className="text-xl font-semibold">Story Bank</h1>
         <Button variant="primary" onClick={() => setEditing("new")}><Plus className="h-4 w-4" /> Add project</Button>
       </div>
-      <p className="text-sm text-slate-500">Enter each project once. Claude turns it into a STAR story (using only your facts) and maps it to common behavioral questions; behavioral mock interviews probe against these stories.</p>
+      <p className="text-sm text-slate-500">Enter each project once. The LLM turns it into a STAR story (using only your facts) and maps it to common behavioral questions; behavioral mock interviews probe against these stories.</p>
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="space-y-3 lg:col-span-2">
           {!data.stories.length && <Empty>No stories yet. Start with your multi-agent orchestration system and the A2A action-execution service.</Empty>}

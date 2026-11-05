@@ -11,6 +11,10 @@ from typing import Any
 import pytest
 
 os.environ["ANTHROPIC_API_KEY"] = ""
+os.environ["OPENAI_API_KEY"] = ""
+os.environ["LLM_PROVIDER"] = "auto"
+os.environ["LLM_MODEL_PARSE"] = ""
+os.environ["LLM_MODEL_DEFAULT"] = ""
 os.environ["DISCOVERY_SCHEDULE_ENABLED"] = "false"
 os.environ["APP_ENV"] = "test"
 os.environ["HTTP_MIN_INTERVAL_SECONDS"] = "0"

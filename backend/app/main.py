@@ -54,7 +54,11 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     init_engine()
     bootstrap()
     if not s.llm_configured:
-        log.warning("ANTHROPIC_API_KEY not set — scoring falls back to a keyword heuristic; tailoring/interviews disabled")
+        log.warning(
+            "No LLM API key (OPENAI_API_KEY / ANTHROPIC_API_KEY) — scoring falls back to a keyword heuristic; tailoring/interviews disabled"
+        )
+    else:
+        log.info("LLM provider: %s (parse=%s, default=%s)", s.llm_provider, s.llm_model_parse, s.llm_model_default)
     start_scheduler()
     log.info("JobPilot %s ready (data dir: %s)", __version__, s.data_dir)
     yield

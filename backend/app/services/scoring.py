@@ -188,6 +188,6 @@ def heuristic_score(job: Job, profile: Profile) -> dict[str, Any]:
         "strengths": strengths,
         "gaps": gaps,
         "verdict": verdict,
-        "verdict_line": f"Heuristic keyword estimate ({len(have)}/{len(wanted)} skill areas). Add ANTHROPIC_API_KEY for a real assessment.",
+        "verdict_line": f"Heuristic keyword estimate ({len(have)}/{len(wanted)} skill areas). Add OPENAI_API_KEY for a real assessment.",
         "years_required": years_req,
     }

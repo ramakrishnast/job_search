@@ -37,6 +37,7 @@ def status(db: Session = Depends(get_db)) -> dict[str, Any]:
         "version": __version__,
         "llm": {
             "configured": get_llm().configured,
+            "provider": s.llm_provider,
             "model_parse": s.llm_model_parse,
             "model_default": s.llm_model_default,
             "model_interview": s.interview_model,

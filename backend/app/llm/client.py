@@ -33,7 +33,16 @@ PRICING: dict[str, tuple[float, float]] = {
     "claude-opus-5-5": (4.00, 20.00),
     "claude-opus-5": (5.00, 25.00),
     "claude-fable-5-1": (10.00, 50.00),
+    # OpenAI (list prices; override with LLM_PRICE_INPUT/OUTPUT_PER_MTOK for other models)
+    "gpt-5": (1.25, 10.00),
+    "gpt-5-mini": (0.25, 2.00),
+    "gpt-5-nano": (0.05, 0.40),
+    "gpt-4.1": (2.00, 8.00),
+    "gpt-4.1-mini": (0.40, 1.60),
+    "gpt-4o": (2.50, 10.00),
+    "gpt-4o-mini": (0.15, 0.60),
 }
+_UNKNOWN_MODEL_PRICE = (2.00, 10.00)  # conservative default so the budget guard still works
 # Models that accept the server-side refusal fallback (`fallbacks: "default"`) on the Claude API.
 FALLBACK_MODELS = {"claude-sonnet-5-5", "claude-opus-5-5", "claude-opus-5", "claude-fable-5-1"}
 
@@ -89,8 +98,21 @@ class Provider(Protocol):
     def complete(self, req: LLMRequest) -> RawResponse: ...
 
 
+def model_price(model: str) -> tuple[float, float]:
+    s = get_settings()
+    if s.llm_price_input_per_mtok is not None and s.llm_price_output_per_mtok is not None:
+        return s.llm_price_input_per_mtok, s.llm_price_output_per_mtok
+    if model in PRICING:
+        return PRICING[model]
+    # dated snapshots, e.g. "gpt-5-mini-2025-08-07"
+    for name in sorted(PRICING, key=len, reverse=True):
+        if model.startswith(name + "-"):
+            return PRICING[name]
+    return _UNKNOWN_MODEL_PRICE
+
+
 def estimate_cost(model: str, r: RawResponse) -> float:
-    inp, out = PRICING.get(model, PRICING["claude-sonnet-5-5"])
+    inp, out = model_price(model)
     return (r.input_tokens * inp + r.output_tokens * out + r.cache_read_tokens * inp * 0.1 + r.cache_write_tokens * inp * 1.25) / 1_000_000
 
 
@@ -158,6 +180,93 @@ class AnthropicProvider:
         if use_fallback:
             return self.client.beta.messages.create(**kwargs, betas=["server-side-fallback-2026-07-01"], fallbacks="default")
         return self.client.messages.create(**kwargs)
+
+
+class OpenAIProvider:
+    """Adapter over the official `openai` SDK (Chat Completions, JSON mode).
+
+    Request shapes are normalized from the internal (Anthropic-style) content blocks:
+    text blocks → text parts, base64 image blocks → data-URL image parts.
+    """
+
+    REASONING_PREFIXES = ("gpt-5", "o1", "o3", "o4")
+
+    def __init__(self, api_key: str, *, base_url: str | None, timeout: float) -> None:
+        import openai
+
+        self._openai = openai
+        self.client = openai.OpenAI(api_key=api_key, base_url=base_url or None, max_retries=3, timeout=timeout)
+        self._no_reasoning_effort: set[str] = set()
+        self._no_json_mode: set[str] = set()
+
+    @staticmethod
+    def _convert_content(content: Any) -> Any:
+        if isinstance(content, str):
+            return content
+        parts: list[dict[str, Any]] = []
+        for b in content:
+            if b.get("type") == "text":
+                parts.append({"type": "text", "text": b["text"]})
+            elif b.get("type") == "image":
+                src = b.get("source", {})
+                url = f"data:{src.get('media_type', 'image/png')};base64,{src.get('data', '')}"
+                parts.append({"type": "image_url", "image_url": {"url": url}})
+        if all(p["type"] == "text" for p in parts):
+            return "\n\n".join(p["text"] for p in parts)
+        return parts
+
+    def build(self, req: LLMRequest) -> dict[str, Any]:
+        # Stable content first (instructions + profile) so OpenAI's automatic prefix caching applies.
+        system = req.system + (f"\n\n{req.cached_context}" if req.cached_context else "")
+        messages: list[dict[str, Any]] = [{"role": "system", "content": system}]
+        for m in req.messages:
+            messages.append({"role": m["role"], "content": self._convert_content(m["content"])})
+        kwargs: dict[str, Any] = {"model": req.model, "messages": messages, "max_completion_tokens": req.max_tokens}
+        if req.model not in self._no_json_mode:
+            kwargs["response_format"] = {"type": "json_object"}
+        if req.model.startswith(self.REASONING_PREFIXES) and req.model not in self._no_reasoning_effort:
+            kwargs["reasoning_effort"] = {"low": "low", "medium": "medium"}.get(req.effort, "high")
+        return kwargs
+
+    def complete(self, req: LLMRequest) -> RawResponse:
+        o = self._openai
+        for _ in range(3):
+            kwargs = self.build(req)
+            try:
+                resp = self.client.chat.completions.create(**kwargs)
+                break
+            except o.BadRequestError as e:
+                text = str(e).lower()
+                # Self-heal per model if an optional parameter is unsupported.
+                if "reasoning_effort" in kwargs and "reasoning" in text:
+                    self._no_reasoning_effort.add(req.model)
+                elif "response_format" in kwargs and ("response_format" in text or "json" in text):
+                    self._no_json_mode.add(req.model)
+                else:
+                    raise
+        else:  # pragma: no cover
+            raise LLMError("OpenAI request kept failing with unsupported parameters")
+        choice = resp.choices[0]
+        msg = choice.message
+        stop = {"stop": "end_turn", "length": "max_tokens", "content_filter": "refusal"}.get(
+            choice.finish_reason or "", choice.finish_reason
+        )
+        if getattr(msg, "refusal", None):
+            stop = "refusal"
+        usage = resp.usage
+        cached = 0
+        if usage is not None and getattr(usage, "prompt_tokens_details", None) is not None:
+            cached = getattr(usage.prompt_tokens_details, "cached_tokens", 0) or 0
+        prompt = (getattr(usage, "prompt_tokens", 0) or 0) if usage is not None else 0
+        return RawResponse(
+            text=msg.content or "",
+            stop_reason=stop,
+            model=getattr(resp, "model", req.model),
+            input_tokens=max(0, prompt - cached),
+            output_tokens=(getattr(usage, "completion_tokens", 0) or 0) if usage is not None else 0,
+            cache_read_tokens=cached,
+            request_id=getattr(resp, "_request_id", None),
+        )
 
 
 _JSON_FENCE = re.compile(r"```(?:json)?\s*(.*?)```", re.S)
@@ -280,7 +389,7 @@ class LLMClient:
                         db.commit()
 
             if self.provider is None:
-                raise LLMNotConfigured("ANTHROPIC_API_KEY is not set; add it to .env and restart.")
+                raise LLMNotConfigured("No LLM API key configured: set OPENAI_API_KEY (or ANTHROPIC_API_KEY) in .env and restart.")
             self._check_budget(db, interactive)
 
             json_schema = _transform_schema(schema)
@@ -373,16 +482,17 @@ def get_llm() -> LLMClient:
     with _client_lock:
         if _client is None:
             s = get_settings()
-            provider = (
-                AnthropicProvider(
-                    s.anthropic_api_key or "",
+            provider: Provider | None = None
+            key = s.llm_api_key
+            if key and s.llm_provider == "openai":
+                provider = OpenAIProvider(key, base_url=s.openai_base_url, timeout=s.llm_timeout_seconds)
+            elif key and s.llm_provider == "anthropic":
+                provider = AnthropicProvider(
+                    key,
                     refusal_fallback=s.llm_refusal_fallback,
                     structured_outputs=s.llm_structured_outputs,
                     timeout=s.llm_timeout_seconds,
                 )
-                if s.llm_configured
-                else None
-            )
             _client = LLMClient(provider)
         return _client
 

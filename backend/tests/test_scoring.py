@@ -52,8 +52,10 @@ def test_score_once_then_cached(fake_llm, db):
     assert f1.data["parsed"]["comp_max"] == 405000
     # prompt carries the candidate background in the cached system block
     req = next(c for c in p.calls if c.task == "fit_score")
-    assert "Workday" in req.cached_context and req.model == "claude-sonnet-5-5"
-    assert next(c for c in p.calls if c.task == "jd_parse").model == "claude-haiku-5-5"
+    from app.config import get_settings
+
+    assert "Workday" in req.cached_context and req.model == get_settings().llm_model_default
+    assert next(c for c in p.calls if c.task == "jd_parse").model == get_settings().llm_model_parse
 
 
 def test_force_rescore_and_jd_change(fake_llm, db):

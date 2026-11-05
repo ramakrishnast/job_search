@@ -15,3 +15,4 @@ python-multipart==0.0.33
 # tests
 pytest==9.2.0
 ruff==0.17.3
+openai==3.46.0

@@ -25,8 +25,11 @@ RUN pip install -r requirements.txt
 COPY backend/ ./
 COPY config/ /app/config/
 COPY --from=web /web/dist /app/frontend/dist
-RUN useradd --create-home --uid 10001 jobpilot && mkdir -p /data && chown -R jobpilot:jobpilot /data
-USER jobpilot
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN useradd --create-home --uid 10001 jobpilot && mkdir -p /data && chown -R jobpilot:jobpilot /data \
+    && chmod +x /usr/local/bin/docker-entrypoint.sh
+# The entrypoint fixes ownership of the mounted /data volume, then runs the app as the non-root `jobpilot` user.
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 VOLUME ["/data"]
 EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \

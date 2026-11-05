@@ -4,12 +4,24 @@ from __future__ import annotations
 
 from functools import lru_cache
 from pathlib import Path
+from typing import Literal
 
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # backend/app/config.py -> repo root is two levels above `app/`
 REPO_ROOT = Path(__file__).resolve().parents[2]
+
+# (parse model, default model) per provider. Parsing runs on every new job → cheapest model.
+PROVIDER_DEFAULTS: dict[str, tuple[str, str]] = {
+    "openai": ("gpt-5-mini", "gpt-5"),
+    "anthropic": ("claude-haiku-5-5", "claude-sonnet-5-5"),
+    "auto": ("gpt-5-mini", "gpt-5"),
+}
+
+
+def _has(v: str | None) -> bool:
+    return bool(v and v.strip())
 
 
 class Settings(BaseSettings):
@@ -36,11 +48,18 @@ class Settings(BaseSettings):
     profile_example_file: Path = REPO_ROOT / "config" / "profile.example.yaml"
     frontend_dist: Path = REPO_ROOT / "frontend" / "dist"
 
-    # Claude API
+    # LLM provider: "auto" picks OpenAI if OPENAI_API_KEY is set, else Anthropic if ANTHROPIC_API_KEY is set.
+    llm_provider: Literal["auto", "openai", "anthropic"] = "auto"
+    openai_api_key: str | None = None
+    openai_base_url: str | None = None  # optional: Azure OpenAI / compatible gateway
     anthropic_api_key: str | None = None
-    llm_model_parse: str = "claude-haiku-5-5"
-    llm_model_default: str = "claude-sonnet-5-5"
+    # Models — leave empty for provider defaults (see PROVIDER_DEFAULTS).
+    llm_model_parse: str | None = None
+    llm_model_default: str | None = None
     llm_model_interview: str | None = None  # defaults to llm_model_default
+    # Optional price override ($ per 1M tokens) for the cost guard when using a model not in the price table.
+    llm_price_input_per_mtok: float | None = None
+    llm_price_output_per_mtok: float | None = None
     llm_validation_retries: int = 2  # extra attempts when output fails Pydantic validation
     llm_refusal_fallback: bool = True  # server-side fallback on Sonnet/Opus 5.5 (Claude API only)
     llm_structured_outputs: bool = True  # use output_config.format JSON schema when supported
@@ -73,17 +92,37 @@ class Settings(BaseSettings):
         (v / "backups").mkdir(exist_ok=True)
         return v
 
+    @model_validator(mode="after")
+    def _resolve_provider(self) -> Settings:
+        if self.llm_provider == "auto":
+            if _has(self.openai_api_key):
+                self.llm_provider = "openai"
+            elif _has(self.anthropic_api_key):
+                self.llm_provider = "anthropic"
+        defaults = PROVIDER_DEFAULTS.get(self.llm_provider, PROVIDER_DEFAULTS["openai"])
+        self.llm_model_parse = self.llm_model_parse or defaults[0]
+        self.llm_model_default = self.llm_model_default or defaults[1]
+        return self
+
     @property
     def db_url(self) -> str:
         return self.database_url or f"sqlite:///{self.data_dir / 'jobpilot.db'}"
 
     @property
     def interview_model(self) -> str:
-        return self.llm_model_interview or self.llm_model_default
+        return self.llm_model_interview or self.llm_model_default or ""
+
+    @property
+    def llm_api_key(self) -> str | None:
+        if self.llm_provider == "openai":
+            return self.openai_api_key if _has(self.openai_api_key) else None
+        if self.llm_provider == "anthropic":
+            return self.anthropic_api_key if _has(self.anthropic_api_key) else None
+        return None
 
     @property
     def llm_configured(self) -> bool:
-        return bool(self.anthropic_api_key and self.anthropic_api_key.strip())
+        return self.llm_api_key is not None
 
 
 @lru_cache
