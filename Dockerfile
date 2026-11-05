@@ -3,7 +3,7 @@
 FROM node:22-slim AS web
 WORKDIR /web
 COPY frontend/package.json frontend/package-lock.json ./
-RUN npm ci --no-audit --no-fund
+RUN npm ci --no-audit --no-fund --loglevel=error
 COPY frontend/ ./
 RUN npm run build
 
