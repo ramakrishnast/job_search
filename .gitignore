@@ -30,4 +30,4 @@ config/companies.local.yaml
 .DS_Store
 .idea/
 .vscode/
-public/excalidraw-assets/
+frontend/public/excalidraw-assets/
