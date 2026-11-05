@@ -1,0 +1,44 @@
+{
+  "apiVersion": "1",
+  "jobs": [
+    {
+      "id": "8c3f-01",
+      "title": "Forward Deployed Engineer",
+      "department": "Engineering",
+      "team": "Deployments",
+      "employmentType": "FullTime",
+      "location": "San Francisco",
+      "secondaryLocations": [{"location": "Atlanta, GA", "address": {}}],
+      "publishedAt": "2026-10-25T16:00:00.000+00:00",
+      "isListed": true,
+      "isRemote": false,
+      "workplaceType": "Hybrid",
+      "address": {"postalAddress": {"addressLocality": "San Francisco", "addressRegion": "California", "addressCountry": "United States"}},
+      "jobUrl": "https://jobs.ashbyhq.com/acme/8c3f-01",
+      "applyUrl": "https://jobs.ashbyhq.com/acme/8c3f-01/application",
+      "descriptionHtml": "<p>Deploy LLM agents with customers.</p><ul><li>Python</li><li>RAG</li></ul>",
+      "descriptionPlain": "Deploy LLM agents with customers.\n- Python\n- RAG",
+      "compensation": {"compensationTierSummary": "$220K – $300K • Offers Equity", "scrapeableCompensationSalarySummary": "$220K - $300K"}
+    },
+    {
+      "id": "8c3f-02",
+      "title": "Junior ML Engineer",
+      "location": "Remote",
+      "isListed": true,
+      "isRemote": true,
+      "workplaceType": "Remote",
+      "jobUrl": "https://jobs.ashbyhq.com/acme/8c3f-02",
+      "applyUrl": "https://jobs.ashbyhq.com/acme/8c3f-02/application",
+      "descriptionHtml": "<p>Entry level.</p>",
+      "descriptionPlain": "Entry level."
+    },
+    {
+      "id": "8c3f-03",
+      "title": "Unlisted LLM Role",
+      "location": "Remote",
+      "isListed": false,
+      "jobUrl": "https://jobs.ashbyhq.com/acme/8c3f-03",
+      "descriptionPlain": "hidden"
+    }
+  ]
+}

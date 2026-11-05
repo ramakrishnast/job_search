@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Node
+node_modules/
+frontend/dist/
+
+# Local data — resume, personal info, SQLite DB, exports. NEVER commit.
+data/*
+!data/.gitkeep
+*.db
+*.db-wal
+*.db-shm
+config/profile.yaml
+config/companies.local.yaml
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/

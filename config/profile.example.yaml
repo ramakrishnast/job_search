@@ -1,0 +1,30 @@
+# Default profile used to seed the app on first run.
+# Copy to config/profile.yaml (gitignored) to customize without committing.
+# Your full resume is pasted in the app (Profile page) and stored only in the local SQLite DB.
+
+name: ""
+headline: "Senior AI Engineer (Generative AI) — applied LLM systems, multi-agent orchestration"
+location: "Atlanta, GA"
+email: ""
+phone: ""
+links: []
+summary: >-
+  Senior AI Engineer with 12+ years across machine learning, data engineering, and applied LLM systems.
+  Senior AI Engineer (Generative AI) at Workday since Dec 2021. Architected and built a supervisor–subagent
+  multi-agent orchestration system that shipped to production with real users, and was the sole engineer
+  on an agent-to-agent (A2A) action-execution service that performs CRM writes in production for live sellers.
+highlights:
+  - "Senior AI Engineer (Generative AI) at Workday, Dec 2021 – present"
+  - "12+ years across ML, data engineering, and applied LLM systems"
+  - "M.S. Data Science, University of North Texas (2020)"
+  - "Architected and built a supervisor–subagent multi-agent orchestration system shipped to production with real users"
+  - "Sole engineer on an agent-to-agent (A2A) action-execution service performing production CRM writes for live sellers"
+target_roles:
+  - Senior Applied AI Engineer
+  - Senior / Staff AI Engineer
+  - Forward Deployed Engineer (AI)
+  - Senior ML Engineer (LLM / agents)
+preferences:
+  locations: ["Atlanta, GA", "SF Bay Area (open to relocate)", "Remote (US)"]
+  company_types: ["frontier AI labs", "big tech", "AI startups / scale-ups"]
+  not_interested: ["research scientist roles"]

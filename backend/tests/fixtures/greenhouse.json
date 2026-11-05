@@ -1,0 +1,40 @@
+{
+  "jobs": [
+    {
+      "absolute_url": "https://job-boards.greenhouse.io/anthropic/jobs/4001",
+      "data_compliance": [],
+      "internal_job_id": 9001,
+      "location": {"name": "San Francisco, CA | New York City, NY"},
+      "metadata": null,
+      "id": 4001,
+      "updated_at": "2026-10-30T12:00:00-04:00",
+      "requisition_id": "R-1",
+      "title": "Software Engineer, Applied AI",
+      "first_published": "2026-10-20T09:00:00-04:00",
+      "content": "&lt;h2&gt;About the role&lt;/h2&gt;&lt;p&gt;Build LLM-powered agents for enterprise customers.&lt;/p&gt;&lt;ul&gt;&lt;li&gt;5+ years of software engineering&lt;/li&gt;&lt;li&gt;Python, distributed systems&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;Annual salary: $300,000 - $405,000 USD&lt;/p&gt;",
+      "departments": [{"id": 1, "name": "Applied AI", "child_ids": [], "parent_id": null}],
+      "offices": [{"id": 1, "name": "San Francisco, CA", "location": "San Francisco, CA", "child_ids": [], "parent_id": null}]
+    },
+    {
+      "absolute_url": "https://job-boards.greenhouse.io/anthropic/jobs/4002",
+      "location": {"name": "London, UK"},
+      "id": 4002,
+      "updated_at": "2026-10-29T12:00:00Z",
+      "title": "Senior Machine Learning Engineer, Inference",
+      "content": "&lt;p&gt;Make inference fast.&lt;/p&gt;",
+      "departments": [],
+      "offices": []
+    },
+    {
+      "absolute_url": "https://job-boards.greenhouse.io/anthropic/jobs/4003",
+      "location": {"name": "Remote-Friendly (Travel-Required) | San Francisco, CA"},
+      "id": 4003,
+      "updated_at": "2026-10-28T12:00:00Z",
+      "title": "Recruiter, Technical",
+      "content": "&lt;p&gt;Hire people.&lt;/p&gt;",
+      "departments": [],
+      "offices": []
+    }
+  ],
+  "meta": {"total": 3}
+}

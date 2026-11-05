@@ -1,0 +1,30 @@
+[
+  {
+    "additional": "<div>We offer great benefits.</div>",
+    "additionalPlain": "We offer great benefits.",
+    "categories": {"commitment": "Full-time", "department": "Science", "location": "Remote - US", "team": "Applied AI", "allLocations": ["Remote - US", "New York, NY"]},
+    "createdAt": 1761000000000,
+    "descriptionPlain": "Join us to ship agentic systems.",
+    "description": "<div>Join us to ship agentic systems.</div>",
+    "id": "a1b2c3",
+    "lists": [{"text": "Requirements", "content": "<li>LLM evals</li><li>Python</li>"}],
+    "text": "Staff AI Engineer, Agents",
+    "country": "US",
+    "workplaceType": "remote",
+    "hostedUrl": "https://jobs.lever.co/acme/a1b2c3",
+    "applyUrl": "https://jobs.lever.co/acme/a1b2c3/apply",
+    "salaryRange": {"currency": "USD", "interval": "per-year-salary", "min": 250000, "max": 320000}
+  },
+  {
+    "categories": {"location": "Paris, France", "team": "Research"},
+    "createdAt": 1761000000000,
+    "descriptionPlain": "Research.",
+    "description": "<p>Research.</p>",
+    "id": "d4e5f6",
+    "lists": [],
+    "text": "Research Scientist, Pretraining",
+    "workplaceType": "onsite",
+    "hostedUrl": "https://jobs.lever.co/acme/d4e5f6",
+    "applyUrl": "https://jobs.lever.co/acme/d4e5f6/apply"
+  }
+]

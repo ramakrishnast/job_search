@@ -1,0 +1,78 @@
+# Discovery filters. A posting "matches" when it passes ALL three: title, seniority, location.
+# Matching postings land in the pipeline's "Discovered" column; everything else stays
+# browsable under Jobs → "show non-matching".
+
+title:
+  # Any of these (case-insensitive, word-boundary) must appear in the title.
+  include:
+    - applied ai
+    - applied ml
+    - ai engineer
+    - ml engineer
+    - machine learning engineer
+    - machine learning
+    - llm
+    - large language model
+    - agent
+    - agents
+    - agentic
+    - forward deployed
+    - generative ai
+    - genai
+    - gen ai
+    - ai/ml
+    - ai platform
+    - ai solutions
+    - inference
+    - model behavior
+    - evals
+  # Any of these rejects the posting even if an include matched.
+  exclude:
+    - intern
+    - internship
+    - new grad
+    - research scientist
+    - research intern
+    - phd resident
+    - recruiter
+    - recruiting
+    - sales
+    - account executive
+    - account manager
+    - marketing
+    - designer
+    - counsel
+    - legal
+    - policy
+    - finance
+    - accountant
+    - people partner
+    - engineering manager
+    - head of
+    - director
+    - vp
+    - chief
+
+seniority:
+  # Titles at frontier labs are often unleveled ("Software Engineer, Applied AI") — keep them.
+  allow_unleveled: true
+  include: [senior, sr, staff, principal, lead, "member of technical staff", mts, "senior staff", "l5", "l6", "l7", "ic4", "ic5", "ic6"]
+  exclude: [junior, jr, associate, entry, "early career", "new grad", "level 1", "l3", "ic1", "ic2"]
+
+location:
+  # Tags shown in the UI; a posting matches if any of its locations hits any tag.
+  tags:
+    bay_area: ["san francisco", "sf", "bay area", "palo alto", "mountain view", "menlo park", "san mateo",
+               "redwood city", "sunnyvale", "san jose", "santa clara", "oakland", "berkeley", "south san francisco",
+               "foster city", "cupertino", "burlingame", "emeryville", "san bruno"]
+    remote_us: []   # handled by the remote rules below
+    atlanta: ["atlanta", "alpharetta", "midtown atlanta"]
+    nyc: ["new york", "nyc", "brooklyn", "manhattan"]
+  remote:
+    # A remote posting matches unless it is clearly restricted outside the US.
+    allow_unqualified_remote: true
+    us_markers: ["us", "usa", "u.s.", "united states", "north america", "americas", "anywhere"]
+    non_us_markers: ["uk", "united kingdom", "london", "emea", "europe", "eu", "germany", "france", "paris",
+                     "canada", "india", "apac", "asia", "japan", "tokyo", "singapore", "australia", "latam",
+                     "brazil", "mexico", "ireland", "dublin", "switzerland", "zurich", "netherlands", "amsterdam",
+                     "spain", "poland", "israel", "korea", "seoul"]

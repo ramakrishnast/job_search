@@ -1,0 +1,19 @@
+[project]
+name = "jobpilot"
+version = "1.0.0"
+description = "Personal job-search + interview-prep system for senior applied AI roles"
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 140
+target-version = "py311"
+extend-exclude = ["alembic/versions"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF"]
+ignore = ["B008", "RUF001", "RUF002", "RUF003", "SIM105", "E501", "RUF012"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = ["ignore::DeprecationWarning:alembic.*"]

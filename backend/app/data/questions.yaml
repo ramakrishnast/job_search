@@ -1,0 +1,519 @@
+# Seed question bank. Keys are stable — the story bank maps stories to behavioral keys.
+# difficulty: 1 easy · 2 medium · 3 hard
+
+competencies:
+  - ownership
+  - technical_leadership
+  - collaboration
+  - customer_focus
+  - dealing_with_ambiguity
+  - bias_for_action
+  - learning
+  - communication
+  - conflict_resolution
+  - delivery_under_pressure
+  - mentorship
+  - judgment
+
+questions:
+  # ------------------------------------------------------------ LLM system design
+  - key: sd-rag-10m
+    category: system_design
+    topic: rag
+    difficulty: 3
+    prompt: "Design a retrieval-augmented generation system over 10 million enterprise documents (PDFs, wikis, tickets) with per-user access control. Target p95 latency under 3 seconds."
+    rubric_hints: ["ingestion & chunking strategy", "hybrid retrieval (BM25 + dense)", "ACL enforcement at retrieval time", "reranking", "index sharding & freshness", "evals for retrieval and answer quality", "cost per query"]
+    follow_up_hints: ["How do you keep the index fresh when documents change hourly?", "How do you prevent leaking documents a user cannot see?", "How would you measure retrieval recall without labels?"]
+  - key: sd-multi-agent-support
+    category: system_design
+    topic: agents
+    difficulty: 3
+    prompt: "Design a multi-agent customer support system that resolves tickets end to end: it can look up orders, issue refunds under a limit, and escalate to humans."
+    rubric_hints: ["supervisor vs. router topology", "tool contracts & permissions", "human-in-the-loop thresholds", "state & memory", "guardrails for money-moving actions", "observability & replay", "offline + online evals"]
+    follow_up_hints: ["What stops an agent from issuing a refund twice?", "How do you debug a bad conversation in production?", "When would you NOT use multiple agents?"]
+  - key: sd-eval-pipeline
+    category: system_design
+    topic: evals
+    difficulty: 2
+    prompt: "Design an evaluation pipeline for an LLM product that ships prompt and model changes weekly."
+    rubric_hints: ["golden datasets & sourcing from production", "LLM-as-judge calibration against humans", "regression gates in CI", "slice-based metrics", "online A/B and guardrail metrics", "cost of evals"]
+    follow_up_hints: ["How do you know your LLM judge is trustworthy?", "How do you avoid overfitting prompts to the eval set?"]
+  - key: sd-llm-gateway
+    category: system_design
+    topic: llm_platform
+    difficulty: 2
+    prompt: "Design an internal LLM gateway used by 50 product teams: model routing, rate limits, caching, cost attribution and fallbacks."
+    rubric_hints: ["API surface & auth", "per-team quotas", "semantic vs exact caching", "provider fallback & retries", "streaming", "PII redaction", "cost accounting", "observability"]
+    follow_up_hints: ["How do you handle a provider outage mid-stream?", "When is semantic caching dangerous?"]
+  - key: sd-agent-action-execution
+    category: system_design
+    topic: agents
+    difficulty: 3
+    prompt: "Design a service that lets AI agents execute write actions in a CRM (create opportunities, update contacts) on behalf of live sales reps, safely."
+    rubric_hints: ["action schemas & validation", "idempotency keys", "user confirmation flows", "authorization scoped to the user", "audit log", "dry-run / preview", "rollback/compensation", "rate limiting", "agent-to-agent protocol"]
+    follow_up_hints: ["How do you make writes idempotent when the agent retries?", "What do you do when the CRM API partially fails?"]
+  - key: sd-semantic-search
+    category: system_design
+    topic: retrieval
+    difficulty: 2
+    prompt: "Design semantic search for a job marketplace with 5M postings and 50M users, including personalization."
+    rubric_hints: ["embedding model choice & refresh", "ANN index (HNSW/IVF-PQ)", "candidate generation + ranking", "cold start", "feedback loops", "latency budget", "offline metrics"]
+    follow_up_hints: ["How do you re-embed 5M postings when you change models?", "How do you evaluate personalization offline?"]
+  - key: sd-voice-agent
+    category: system_design
+    topic: agents
+    difficulty: 3
+    prompt: "Design a real-time voice AI agent for appointment scheduling with sub-second turn latency."
+    rubric_hints: ["streaming ASR/LLM/TTS pipeline", "barge-in & turn detection", "tool calls to calendar", "latency budget per stage", "fallbacks", "evaluation of conversations"]
+    follow_up_hints: ["Where does the latency actually go?", "How do you handle the user interrupting mid-sentence?"]
+  - key: sd-doc-extraction
+    category: system_design
+    topic: llm_platform
+    difficulty: 2
+    prompt: "Design a pipeline that extracts structured fields from 1M invoices per day using LLMs, with high accuracy and auditable outputs."
+    rubric_hints: ["OCR/layout", "schema-constrained outputs", "confidence & human review queue", "batching for cost", "validation rules", "drift monitoring"]
+    follow_up_hints: ["How do you route only uncertain documents to humans?", "How would you cut cost by 10x?"]
+  - key: sd-coding-agent-sandbox
+    category: system_design
+    topic: agents
+    difficulty: 3
+    prompt: "Design the execution environment for a coding agent that runs untrusted code and tests for thousands of concurrent users."
+    rubric_hints: ["sandbox isolation (microVMs/containers)", "resource limits", "network egress policy", "snapshotting & warm pools", "secrets handling", "cost", "observability"]
+    follow_up_hints: ["How do you stop data exfiltration?", "How do you start a sandbox in under a second?"]
+  - key: sd-finetune-platform
+    category: system_design
+    topic: fine_tuning
+    difficulty: 3
+    prompt: "Design a self-serve fine-tuning platform for customers to adapt an open-weights model with their data."
+    rubric_hints: ["data validation & PII", "LoRA vs full FT", "job scheduling on GPUs", "eval before deploy", "multi-tenant adapter serving", "versioning & rollback"]
+    follow_up_hints: ["How do you serve 1", "000 customer adapters cheaply?", "How do you stop a customer from degrading safety behavior?"]
+
+  # ------------------------------------------------------------ ML fundamentals
+  - key: ml-attention
+    category: ml_fundamentals
+    topic: transformers
+    difficulty: 1
+    prompt: "Explain scaled dot-product attention. Why the scaling by sqrt(d_k), and what does multi-head attention buy you?"
+    rubric_hints: ["Q/K/V", "softmax saturation", "variance argument", "different subspaces per head", "complexity O(n^2 d)"]
+  - key: ml-transformer-arch
+    category: ml_fundamentals
+    topic: transformers
+    difficulty: 2
+    prompt: "Walk through a decoder-only transformer block end to end. Where do residuals and layer norms go, and why pre-norm?"
+    rubric_hints: ["embeddings", "causal mask", "attention + MLP", "residual stream", "pre-norm stability", "positional information"]
+  - key: ml-positional
+    category: ml_fundamentals
+    topic: transformers
+    difficulty: 2
+    prompt: "Compare absolute, learned, and rotary positional embeddings (RoPE). How do they affect long-context extrapolation?"
+    rubric_hints: ["relative position via rotation", "extrapolation issues", "NTK/YaRN scaling", "ALiBi"]
+  - key: ml-kv-cache
+    category: ml_fundamentals
+    topic: inference
+    difficulty: 2
+    prompt: "What is the KV cache, how big does it get, and what techniques reduce its memory footprint?"
+    rubric_hints: ["per-token K/V per layer", "memory formula", "MQA/GQA", "paged attention", "quantized KV", "prefix caching"]
+  - key: ml-ft-vs-rag
+    category: ml_fundamentals
+    topic: fine_tuning
+    difficulty: 2
+    prompt: "When would you fine-tune versus use RAG versus prompt engineering? Give concrete decision criteria."
+    rubric_hints: ["knowledge vs behavior", "freshness", "cost", "data volume", "latency", "evaluation", "hybrid approaches"]
+  - key: ml-lora
+    category: ml_fundamentals
+    topic: fine_tuning
+    difficulty: 2
+    prompt: "Explain LoRA. Why does low-rank adaptation work, and what are rank/alpha trade-offs? How does QLoRA differ?"
+    rubric_hints: ["frozen weights + low-rank delta", "parameter count", "merging adapters", "4-bit NF4 base", "paged optimizers"]
+  - key: ml-embeddings
+    category: ml_fundamentals
+    topic: embeddings
+    difficulty: 1
+    prompt: "How are text embedding models trained, and how do you choose one for a retrieval system?"
+    rubric_hints: ["contrastive learning", "hard negatives", "dimension vs cost", "domain eval (MTEB vs your data)", "matryoshka embeddings"]
+  - key: ml-quantization
+    category: ml_fundamentals
+    topic: inference
+    difficulty: 2
+    prompt: "Explain post-training quantization for LLMs (INT8/INT4, GPTQ/AWQ). What breaks and how do you validate quality?"
+    rubric_hints: ["weight vs activation quantization", "outliers", "group size", "calibration data", "perplexity + task evals", "speed vs memory"]
+  - key: ml-evals
+    category: ml_fundamentals
+    topic: evals
+    difficulty: 2
+    prompt: "How do you evaluate an LLM feature that has no single correct answer?"
+    rubric_hints: ["rubrics", "pairwise preference", "LLM-as-judge with calibration", "human spot checks", "inter-rater agreement", "regression suites"]
+  - key: ml-hallucination
+    category: ml_fundamentals
+    topic: hallucination
+    difficulty: 2
+    prompt: "What causes hallucinations, and what mitigation strategies have you seen work in production?"
+    rubric_hints: ["grounding/RAG with citations", "constrained decoding", "abstention", "verification passes", "retrieval quality", "measuring hallucination rate"]
+  - key: ml-tokenization
+    category: ml_fundamentals
+    topic: transformers
+    difficulty: 1
+    prompt: "How does BPE tokenization work, and what practical problems does tokenization cause in LLM applications?"
+    rubric_hints: ["merge rules", "vocabulary size", "numbers/code/multilingual issues", "cost estimation", "prompt boundaries"]
+  - key: ml-decoding
+    category: ml_fundamentals
+    topic: inference
+    difficulty: 1
+    prompt: "Compare greedy, beam search, temperature, top-k and top-p sampling. Which would you use for which task?"
+    rubric_hints: ["determinism vs diversity", "repetition", "structured outputs", "speculative decoding as a bonus"]
+  - key: ml-rlhf-dpo
+    category: ml_fundamentals
+    topic: alignment
+    difficulty: 3
+    prompt: "Explain RLHF with PPO and contrast it with DPO. What are the failure modes of each?"
+    rubric_hints: ["reward model", "KL penalty", "reward hacking", "preference data", "DPO closed form", "stability & cost"]
+  - key: ml-long-context
+    category: ml_fundamentals
+    topic: inference
+    difficulty: 2
+    prompt: "A model supports a 1M-token context. Should you stop doing RAG? Discuss quality, latency and cost."
+    rubric_hints: ["lost-in-the-middle", "cost per call", "prompt caching", "retrieval as filter", "needle tests vs real tasks"]
+  - key: ml-prompt-injection
+    category: ml_fundamentals
+    topic: safety
+    difficulty: 2
+    prompt: "How do you defend an agent that reads untrusted web pages and emails against prompt injection?"
+    rubric_hints: ["privilege separation", "tool permission scoping", "content provenance", "confirmation for sensitive actions", "detection", "red-teaming"]
+  - key: ml-moe
+    category: ml_fundamentals
+    topic: transformers
+    difficulty: 3
+    prompt: "What is a mixture-of-experts model? What are the training and serving trade-offs?"
+    rubric_hints: ["router", "top-k experts", "load balancing loss", "memory vs compute", "expert parallelism", "all-to-all comms"]
+  - key: ml-distillation
+    category: ml_fundamentals
+    topic: fine_tuning
+    difficulty: 2
+    prompt: "How would you distill a large model's behavior on one task into a small, cheap model? How do you know it worked?"
+    rubric_hints: ["synthetic data generation", "soft labels vs SFT on outputs", "coverage/diversity", "eval parity", "cost/latency gains"]
+
+  # ------------------------------------------------------------ Behavioral (canonical)
+  - { key: beh-proud-project, category: behavioral, topic: impact, difficulty: 1, prompt: "Tell me about the project you're most proud of. What was your specific contribution?" }
+  - { key: beh-ambiguity, category: behavioral, topic: ambiguity, difficulty: 2, prompt: "Tell me about a time you had to deliver with very ambiguous requirements." }
+  - { key: beh-failure, category: behavioral, topic: failure, difficulty: 2, prompt: "Tell me about a time something you built failed or didn't work as intended. What did you do?" }
+  - { key: beh-conflict, category: behavioral, topic: conflict, difficulty: 2, prompt: "Describe a disagreement with a colleague about a technical decision. How was it resolved?" }
+  - { key: beh-disagree-manager, category: behavioral, topic: conflict, difficulty: 2, prompt: "Tell me about a time you pushed back on your manager or leadership." }
+  - { key: beh-influence, category: behavioral, topic: leadership, difficulty: 2, prompt: "Tell me about a time you influenced a decision without formal authority." }
+  - { key: beh-deadline, category: behavioral, topic: delivery, difficulty: 1, prompt: "Tell me about a time you had to ship under a tight deadline. What did you cut?" }
+  - { key: beh-tradeoff, category: behavioral, topic: judgment, difficulty: 2, prompt: "Describe a significant technical trade-off you made. What alternatives did you reject and why?" }
+  - { key: beh-customer, category: behavioral, topic: customer, difficulty: 1, prompt: "Tell me about a time you worked directly with users or customers to change what you were building." }
+  - { key: beh-incident, category: behavioral, topic: ownership, difficulty: 2, prompt: "Tell me about a production incident you owned. How did you respond and what changed afterward?" }
+  - { key: beh-ownership, category: behavioral, topic: ownership, difficulty: 1, prompt: "Tell me about a time you took ownership of something outside your job description." }
+  - { key: beh-mentoring, category: behavioral, topic: leadership, difficulty: 1, prompt: "Tell me about a time you helped someone on your team grow." }
+  - { key: beh-learn-fast, category: behavioral, topic: learning, difficulty: 1, prompt: "Tell me about a time you had to get up to speed on a new technology very quickly." }
+  - { key: beh-sole-owner, category: behavioral, topic: ownership, difficulty: 2, prompt: "Tell me about a system where you were the sole engineer. How did you manage risk and quality alone?" }
+  - { key: beh-why-ai, category: behavioral, topic: motivation, difficulty: 1, prompt: "Why do you want to work on applied AI at this company, and why now?" }
+
+  # ------------------------------------------------------------ Coding (Python, LLM-API flavored)
+  - key: code-retry-backoff
+    category: coding
+    topic: llm_api
+    difficulty: 1
+    function_name: call_with_retries
+    prompt: |
+      Implement `call_with_retries(fn, max_attempts=4, base_delay=0.5, sleep=time.sleep)`.
+      Call `fn()` and return its result. If it raises `RetryableError`, wait `base_delay * 2**attempt`
+      seconds (attempt starts at 0) using the injected `sleep`, then retry, up to `max_attempts` total calls.
+      Any other exception propagates immediately. If all attempts fail, re-raise the last RetryableError.
+    starter_code: |
+      import time
+
+
+      class RetryableError(Exception):
+          pass
+
+
+      def call_with_retries(fn, max_attempts=4, base_delay=0.5, sleep=time.sleep):
+          # your code here
+          raise NotImplementedError
+    tests: |
+      from solution import call_with_retries, RetryableError
+
+      def test_success_first_try():
+          assert call_with_retries(lambda: 42, sleep=lambda s: None) == 42
+
+      def test_retries_then_succeeds():
+          calls, sleeps = [], []
+          def fn():
+              calls.append(1)
+              if len(calls) < 3:
+                  raise RetryableError("429")
+              return "ok"
+          assert call_with_retries(fn, sleep=sleeps.append) == "ok"
+          assert sleeps == [0.5, 1.0]
+
+      def test_gives_up():
+          sleeps = []
+          def fn():
+              raise RetryableError("overloaded")
+          try:
+              call_with_retries(fn, max_attempts=3, base_delay=1, sleep=sleeps.append)
+              assert False, "should raise"
+          except RetryableError:
+              pass
+          assert sleeps == [1, 2]
+
+      def test_non_retryable_propagates():
+          sleeps = []
+          def fn():
+              raise ValueError("bad request")
+          try:
+              call_with_retries(fn, sleep=sleeps.append)
+              assert False, "should raise"
+          except ValueError:
+              pass
+          assert sleeps == []
+
+  - key: code-chunk-text
+    category: coding
+    topic: rag
+    difficulty: 1
+    function_name: chunk_words
+    prompt: |
+      Implement `chunk_words(text, chunk_size, overlap)` for a RAG ingestion pipeline.
+      Split `text` on whitespace into words and return a list of chunks (strings joined by a single space),
+      each with at most `chunk_size` words, where consecutive chunks share exactly `overlap` words.
+      The last chunk may be shorter. Empty text returns []. Raise ValueError if overlap >= chunk_size or chunk_size < 1.
+      Do not emit a final chunk that contains only words already covered by the previous chunk.
+    starter_code: |
+      def chunk_words(text: str, chunk_size: int, overlap: int) -> list[str]:
+          raise NotImplementedError
+    tests: |
+      from solution import chunk_words
+
+      def test_basic():
+          assert chunk_words("a b c d e", 2, 0) == ["a b", "c d", "e"]
+
+      def test_overlap():
+          assert chunk_words("a b c d e f", 3, 1) == ["a b c", "c d e", "e f"]
+
+      def test_exact_fit_no_redundant_tail():
+          assert chunk_words("a b c d", 2, 1) == ["a b", "b c", "c d"]
+
+      def test_empty():
+          assert chunk_words("   ", 3, 1) == []
+
+      def test_invalid():
+          for args in [(2, 2), (0, 0), (3, 5)]:
+              try:
+                  chunk_words("a b c", *args)
+                  assert False
+              except ValueError:
+                  pass
+
+  - key: code-sse-parse
+    category: coding
+    topic: llm_api
+    difficulty: 2
+    function_name: collect_stream_text
+    prompt: |
+      An LLM API streams Server-Sent Events. Implement `collect_stream_text(lines)` which takes an iterable of
+      raw lines (strings, without trailing newlines) and returns the concatenated text.
+      Events are separated by blank lines. Each event has an optional `event: <name>` line and one or more
+      `data: <json>` lines (multiple data lines are joined with "\n" before JSON-decoding).
+      Only events whose JSON has `"type": "content_block_delta"` and `delta.type == "text_delta"` contribute
+      `delta.text`. Ignore comment lines starting with ":". Stop when an event with `"type": "message_stop"` arrives.
+      If the stream contains `"type": "error"`, raise RuntimeError with the error message.
+    starter_code: |
+      import json
+
+
+      def collect_stream_text(lines) -> str:
+          raise NotImplementedError
+    tests: |
+      from solution import collect_stream_text
+
+      def ev(obj, name=None):
+          import json
+          out = []
+          if name:
+              out.append(f"event: {name}")
+          out.append("data: " + json.dumps(obj))
+          out.append("")
+          return out
+
+      def test_basic_text():
+          lines = (ev({"type": "message_start"}, "message_start")
+                   + ev({"type": "content_block_delta", "delta": {"type": "text_delta", "text": "Hel"}})
+                   + [": keep-alive", ""]
+                   + ev({"type": "content_block_delta", "delta": {"type": "text_delta", "text": "lo"}})
+                   + ev({"type": "message_stop"})
+                   + ev({"type": "content_block_delta", "delta": {"type": "text_delta", "text": "IGNORED"}}))
+          assert collect_stream_text(lines) == "Hello"
+
+      def test_ignores_other_deltas():
+          lines = (ev({"type": "content_block_delta", "delta": {"type": "input_json_delta", "partial_json": "{"}})
+                   + ev({"type": "content_block_delta", "delta": {"type": "text_delta", "text": "x"}}))
+          assert collect_stream_text(lines) == "x"
+
+      def test_multiline_data():
+          lines = ['data: {"type": "content_block_delta",', 'data: "delta": {"type": "text_delta", "text": "ok"}}', ""]
+          assert collect_stream_text(lines) == "ok"
+
+      def test_error_event():
+          lines = ev({"type": "error", "error": {"type": "overloaded_error", "message": "Overloaded"}})
+          try:
+              collect_stream_text(lines)
+              assert False
+          except RuntimeError as e:
+              assert "Overloaded" in str(e)
+
+  - key: code-token-bucket
+    category: coding
+    topic: llm_platform
+    difficulty: 2
+    function_name: TokenBucket
+    prompt: |
+      Implement a `TokenBucket(capacity, refill_per_second, clock)` rate limiter for an LLM gateway.
+      `clock()` returns the current time in seconds (injected for testing). The bucket starts full.
+      `try_acquire(tokens=1) -> bool` refills based on elapsed time (never above capacity), then consumes
+      `tokens` and returns True if enough are available, otherwise returns False and consumes nothing.
+      Requests larger than capacity always return False.
+    starter_code: |
+      class TokenBucket:
+          def __init__(self, capacity: float, refill_per_second: float, clock):
+              raise NotImplementedError
+
+          def try_acquire(self, tokens: float = 1) -> bool:
+              raise NotImplementedError
+    tests: |
+      from solution import TokenBucket
+
+      class Clock:
+          def __init__(self):
+              self.t = 0.0
+          def __call__(self):
+              return self.t
+
+      def test_starts_full_and_drains():
+          c = Clock(); b = TokenBucket(3, 1, c)
+          assert [b.try_acquire() for _ in range(4)] == [True, True, True, False]
+
+      def test_refill():
+          c = Clock(); b = TokenBucket(2, 1, c)
+          assert b.try_acquire(2)
+          assert not b.try_acquire()
+          c.t = 1.5
+          assert b.try_acquire()
+          assert not b.try_acquire()
+          c.t = 2.0
+          assert b.try_acquire()
+
+      def test_cap_and_large_requests():
+          c = Clock(); b = TokenBucket(5, 10, c)
+          c.t = 100
+          assert not b.try_acquire(6)
+          assert b.try_acquire(5)
+          assert not b.try_acquire(0.5)
+
+  - key: code-cosine-topk
+    category: coding
+    topic: retrieval
+    difficulty: 1
+    function_name: top_k_cosine
+    prompt: |
+      Implement `top_k_cosine(query, docs, k)` without numpy. `query` is a list of floats; `docs` is a list of
+      equal-length vectors. Return the indices of the `k` most cosine-similar docs, most similar first.
+      Break ties by lower index. Zero vectors have similarity 0. If k > len(docs) return all indices.
+    starter_code: |
+      import math
+
+
+      def top_k_cosine(query: list[float], docs: list[list[float]], k: int) -> list[int]:
+          raise NotImplementedError
+    tests: |
+      from solution import top_k_cosine
+
+      def test_order():
+          q = [1, 0]
+          docs = [[0, 1], [1, 0], [1, 1], [-1, 0]]
+          assert top_k_cosine(q, docs, 2) == [1, 2]
+
+      def test_ties_and_zero():
+          q = [1, 1]
+          docs = [[2, 2], [1, 1], [0, 0]]
+          assert top_k_cosine(q, docs, 3) == [0, 1, 2]
+
+      def test_k_larger():
+          assert top_k_cosine([1], [[1], [2]], 5) == [0, 1]
+
+  - key: code-json-repair
+    category: coding
+    topic: llm_api
+    difficulty: 2
+    function_name: generate_validated
+    prompt: |
+      Implement `generate_validated(call_model, required_keys, max_attempts=3)`.
+      `call_model(messages)` takes a list of `{"role", "content"}` dicts and returns a string.
+      Start with `[{"role": "user", "content": "Return JSON"}]`. Parse the response as JSON (it may be wrapped in
+      ```json fences). It is valid if it is an object containing every key in `required_keys`.
+      On invalid output append the assistant reply and a user message whose content starts with "Invalid:" and
+      describes the problem, then retry. Return the parsed dict, or raise ValueError after max_attempts.
+    starter_code: |
+      import json
+
+
+      def generate_validated(call_model, required_keys, max_attempts=3):
+          raise NotImplementedError
+    tests: |
+      from solution import generate_validated
+
+      def test_valid_first():
+          out = generate_validated(lambda m: '{"a": 1, "b": 2}', ["a", "b"])
+          assert out == {"a": 1, "b": 2}
+
+      def test_fenced_and_retry():
+          replies = iter(["not json", '```json\n{"a": 1}\n```', '{"a": 1, "b": 2}'])
+          seen = []
+          def call(messages):
+              seen.append([dict(x) for x in messages])
+              return next(replies)
+          out = generate_validated(call, ["a", "b"])
+          assert out == {"a": 1, "b": 2}
+          assert len(seen) == 3
+          assert seen[1][-1]["role"] == "user" and seen[1][-1]["content"].startswith("Invalid:")
+          assert seen[1][-2] == {"role": "assistant", "content": "not json"}
+
+      def test_gives_up():
+          try:
+              generate_validated(lambda m: "[]", ["a"], max_attempts=2)
+              assert False
+          except ValueError:
+              pass
+
+  - key: code-rrf
+    category: coding
+    topic: retrieval
+    difficulty: 2
+    function_name: reciprocal_rank_fusion
+    prompt: |
+      Implement `reciprocal_rank_fusion(rankings, k=60, top_n=None)` to merge results from hybrid search
+      (e.g. BM25 + dense). `rankings` is a list of ranked lists of doc ids (best first). Each doc's score is
+      the sum over lists of 1 / (k + rank), with rank starting at 1. Return doc ids sorted by score descending,
+      ties broken by first appearance across the input lists (scanning list by list). Duplicates within one list
+      are ignored after their first occurrence (they do not consume a rank). Truncate to top_n if given.
+    starter_code: |
+      def reciprocal_rank_fusion(rankings, k=60, top_n=None):
+          raise NotImplementedError
+    tests: |
+      from solution import reciprocal_rank_fusion
+
+      def test_basic():
+          r = reciprocal_rank_fusion([["a", "b", "c"], ["b", "c", "d"]])
+          assert r[0] == "b"
+          assert set(r) == {"a", "b", "c", "d"}
+          assert r.index("c") < r.index("a")
+
+      def test_ties_by_first_appearance():
+          assert reciprocal_rank_fusion([["x"], ["y"]]) == ["x", "y"]
+
+      def test_duplicates_and_top_n():
+          assert reciprocal_rank_fusion([["a", "a", "b"], ["b"]], k=1, top_n=1) == ["b"]
+          full = reciprocal_rank_fusion([["a", "a", "b"], ["b"]], k=1)
+          # a: 1/2 ; b: 1/3 (rank 2 after dedupe) + 1/2
+          assert full == ["b", "a"]

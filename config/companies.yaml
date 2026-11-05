@@ -1,0 +1,48 @@
+# JobPilot seed companies.
+#
+# ats:  greenhouse | lever | ashby | manual
+# slug: the board token in the public ATS URL, e.g.
+#         greenhouse  https://boards.greenhouse.io/<slug>       -> boards-api.greenhouse.io/v1/boards/<slug>/jobs
+#         lever       https://jobs.lever.co/<slug>              -> api.lever.co/v0/postings/<slug>
+#         ashby       https://jobs.ashbyhq.com/<slug>           -> api.ashbyhq.com/posting-api/job-board/<slug>
+# region: lever only — "eu" for companies on jobs.eu.lever.co
+# manual: no public feed; shown as a "check manually" link in the UI.
+#
+# Not sure which ATS a company uses?  Run `make verify-companies` — it probes all three
+# public APIs for each slug and reports which one answers.
+# Personal additions belong in config/companies.local.yaml (gitignored, same format).
+
+companies:
+  # Frontier labs
+  - { name: Anthropic,        ats: greenhouse, slug: anthropic,      category: frontier_lab }
+  - { name: OpenAI,           ats: ashby,      slug: openai,         category: frontier_lab }
+  - { name: Google DeepMind,  ats: greenhouse, slug: deepmind,       category: frontier_lab }
+  - { name: Mistral AI,       ats: lever,      slug: mistral,        category: frontier_lab }
+  - { name: Cohere,           ats: ashby,      slug: cohere,         category: frontier_lab }
+
+  # AI products / scale-ups
+  - { name: Perplexity,       ats: ashby,      slug: perplexity,     category: ai_startup }
+  - { name: Scale AI,         ats: greenhouse, slug: scaleai,        category: ai_startup }
+  - { name: Databricks,       ats: greenhouse, slug: databricks,     category: ai_startup }
+  - { name: Glean,            ats: greenhouse, slug: gleanwork,      category: ai_startup }
+  - { name: Harvey,           ats: ashby,      slug: harvey,         category: ai_startup }
+  - { name: Sierra,           ats: ashby,      slug: sierra,         category: ai_startup }
+  - { name: Decagon,          ats: ashby,      slug: decagon,        category: ai_startup }
+  - { name: Cursor (Anysphere), ats: ashby,    slug: cursor,         category: ai_startup }
+  - { name: Cognition,        ats: ashby,      slug: cognition,      category: ai_startup }
+  - { name: Replit,           ats: ashby,      slug: replit,         category: ai_startup }
+  - { name: Vercel,           ats: greenhouse, slug: vercel,         category: ai_startup }
+  - { name: Pinecone,         ats: ashby,      slug: pinecone,       category: ai_startup }
+  - { name: LangChain,        ats: ashby,      slug: langchain,      category: ai_startup }
+  - { name: Writer,           ats: ashby,      slug: writer,         category: ai_startup }
+  - { name: Abridge,          ats: ashby,      slug: abridge,        category: ai_startup }
+  - { name: Hebbia,           ats: ashby,      slug: hebbia,         category: ai_startup }
+
+  # No Greenhouse/Lever/Ashby feed — checked by hand (links open the official careers search).
+  - { name: Hugging Face, ats: manual, careers_url: "https://apply.workable.com/huggingface/", category: ai_startup }
+  - { name: Google,       ats: manual, careers_url: "https://www.google.com/about/careers/applications/jobs/results/?q=%22applied%20ai%22", category: big_tech }
+  - { name: Meta,         ats: manual, careers_url: "https://www.metacareers.com/jobs?q=machine%20learning%20engineer", category: big_tech }
+  - { name: Apple,        ats: manual, careers_url: "https://jobs.apple.com/en-us/search?search=generative%20ai", category: big_tech }
+  - { name: Microsoft,    ats: manual, careers_url: "https://jobs.careers.microsoft.com/global/en/search?q=applied%20ai", category: big_tech }
+  - { name: Amazon,       ats: manual, careers_url: "https://www.amazon.jobs/en/search?base_query=applied+scientist+llm", category: big_tech }
+  - { name: NVIDIA,       ats: manual, careers_url: "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite?q=llm", category: big_tech }
