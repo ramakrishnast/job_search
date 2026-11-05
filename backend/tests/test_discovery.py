@@ -95,3 +95,17 @@ def test_failed_fetch_does_not_close_jobs(isolated, monkeypatch, db):
     db.expire_all()
     assert db.get(DiscoveryRun, rid).status == "error"
     assert db.query(Job).filter(Job.closed_at.is_not(None)).count() == 0
+
+
+def test_same_title_in_many_cities_gets_one_pipeline_card(isolated, monkeypatch, db):
+    write_companies(isolated, monkeypatch)
+    gh = load_fixture("greenhouse.json")
+    base = gh["jobs"][0]
+    gh["jobs"] = [
+        {**base, "id": 5000 + i, "location": {"name": city}} for i, city in enumerate(["San Francisco, CA", "New York, NY", "Atlanta, GA"])
+    ]
+    payloads = {"gh": gh, "lever": [], "ashby": {"jobs": []}}
+    run_discovery("manual", client=make_client(payloads))
+    gh_jobs = db.query(Job).join(Company).filter(Company.name == "GH Co").all()
+    assert len(gh_jobs) == 3 and all(j.matches_filter for j in gh_jobs)
+    assert db.query(Application).count() == 1

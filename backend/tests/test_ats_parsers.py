@@ -130,3 +130,26 @@ def test_detect_ats():
 
     assert detect_ats(_client(handler), "acme") == ("ashby", 2)
     assert set(FETCHERS) == {"greenhouse", "lever", "ashby"}
+
+
+def test_robots_4xx_means_no_restrictions_and_5xx_blocks():
+    def handler(req: httpx.Request) -> httpx.Response:
+        if req.url.path == "/robots.txt":
+            return httpx.Response(401 if req.url.host == "api.ashbyhq.com" else 503)
+        return httpx.Response(200, json={"jobs": []})
+
+    c = _client(handler)
+    assert c.get_json("https://api.ashbyhq.com/posting-api/job-board/x") == {"jobs": []}
+    with pytest.raises(FetchError, match="robots"):
+        c.get_json("https://flaky.example.com/feed")
+
+
+def test_crawl_delay_is_honored():
+    def handler(req: httpx.Request) -> httpx.Response:
+        if req.url.path == "/robots.txt":
+            return httpx.Response(200, text="User-agent: *\nAllow: /\nCrawl-delay: 1\n")
+        return httpx.Response(200, json=[])
+
+    c = _client(handler)
+    c.get_json("https://api.lever.co/v0/postings/a")
+    assert c._crawl_delay["api.lever.co"] == 1.0

@@ -366,7 +366,6 @@ def skip_question(db: Session, s: InterviewSession) -> list[InterviewTurn]:
 def finish_session(db: Session, llm: LLMClient, s: InterviewSession, profile: Profile) -> InterviewSession:
     if s.status == "completed" and s.scorecard:
         return s
-    asked = sorted({t.question_index for t in s.turns if t.role == "candidate" and t.content != "(skipped)"} | set())
     answered_any = any(t.role == "candidate" and ((t.content and t.content != "(skipped)") or t.code) for t in s.turns)
     if not answered_any:
         s.status = "abandoned"
@@ -421,7 +420,6 @@ def finish_session(db: Session, llm: LLMClient, s: InterviewSession, profile: Pr
             db.add(st)
             q.review = st
         update_review(st, fb.score)
-    del asked
     db.commit()
     db.refresh(s)
     return s

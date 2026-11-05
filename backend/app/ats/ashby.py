@@ -33,10 +33,9 @@ def parse_ashby(payload: dict[str, Any]) -> list[NormalizedPosting]:
             name = sl.get("location") if isinstance(sl, dict) else sl
             if name and name not in locations:
                 locations.append(name)
-        workplace = (j.get("workplaceType") or "").lower() or None
-        if workplace == "onsite" or workplace == "on-site":
-            workplace = "onsite"
-        is_remote = bool(j.get("isRemote")) or workplace == "remote"
+        workplace = (j.get("workplaceType") or "").lower().replace("-", "") or None
+        # Ashby sets isRemote=true on some hybrid/onsite postings; workplaceType is authoritative when present.
+        is_remote = workplace == "remote" or (bool(j.get("isRemote")) and workplace not in ("hybrid", "onsite"))
         desc_html = j.get("descriptionHtml") or ""
         text = j.get("descriptionPlain") or html_to_text(desc_html)
         out.append(

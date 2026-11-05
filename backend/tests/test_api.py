@@ -198,3 +198,14 @@ def test_code_run_endpoint(client):
     q = next(x for x in qs if x["key"] == "code-cosine-topk")
     r = client.post("/api/code/run", json={"question_id": q["id"], "code": q["starter_code"]}).json()
     assert r["ok"] is False and r["total"] >= 3
+
+
+def test_discovered_column_hides_jobs_that_stop_matching(client):
+    jid = seed_job()
+    client.post(f"/api/jobs/{jid}/application", params={"stage": "discovered"})
+    assert len(client.get("/api/pipeline").json()["columns"]["discovered"]) == 1
+    db = SessionLocal()
+    db.get(Job, jid).matches_filter = False
+    db.commit()
+    db.close()
+    assert client.get("/api/pipeline").json()["columns"]["discovered"] == []

@@ -134,6 +134,7 @@ class PoliteClient:
         self._last_hit: dict[str, float] = {}
         self._host_locks: dict[str, threading.Lock] = {}
         self._robots: dict[str, urllib.robotparser.RobotFileParser | None] = {}
+        self._crawl_delay: dict[str, float] = {}
         self._meta_lock = threading.Lock()
 
     def close(self) -> None:
@@ -158,17 +159,23 @@ class PoliteClient:
             known = base in self._robots
             rp = self._robots.get(base)
         if not known:
+            # RFC 9309 §2.3.1: 2xx → parse rules; 4xx ("unavailable", e.g. API hosts that answer 401/404
+            # for /robots.txt) → no restrictions; 5xx/network error → assume complete disallow for now.
             rp = urllib.robotparser.RobotFileParser()
             try:
                 r = self._client.get(f"{base}/robots.txt", headers={"Accept": "text/plain"})
-                if r.status_code == 200:
+                if r.status_code < 300:
                     rp.parse(r.text.splitlines())
-                elif r.status_code in (401, 403):
-                    rp.parse(["User-agent: *", "Disallow: /"])
-                else:  # 404 etc. → everything allowed
+                    delay = rp.crawl_delay(self.user_agent)
+                    if delay:
+                        with self._meta_lock:
+                            self._crawl_delay[p.netloc] = float(delay)
+                elif 400 <= r.status_code < 500:
                     rp = None
-            except httpx.HTTPError:
-                rp = None  # network hiccup fetching robots: fall through to the real request's error handling
+                else:
+                    raise FetchError(f"robots.txt for {base} returned HTTP {r.status_code}; not crawling", status=r.status_code)
+            except httpx.HTTPError as e:
+                raise FetchError(f"could not fetch robots.txt for {base}: {e}") from e
             with self._meta_lock:
                 self._robots[base] = rp
         return rp is None or rp.can_fetch(self.user_agent, url)
@@ -181,7 +188,8 @@ class PoliteClient:
         attempt = 0
         while True:
             with lock:
-                wait = self.min_interval - (time.monotonic() - self._last_hit.get(host, 0.0))
+                interval = max(self.min_interval, self._crawl_delay.get(host, 0.0))
+                wait = interval - (time.monotonic() - self._last_hit.get(host, 0.0))
                 if wait > 0:
                     time.sleep(wait)
                 try:

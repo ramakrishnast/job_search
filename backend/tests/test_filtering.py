@@ -16,6 +16,7 @@ def cfg():
         ("Staff AI Engineer, Agents", ["Remote - US"], True, True),
         ("Forward Deployed Engineer", ["Atlanta, GA"], False, True),
         ("Senior LLM Engineer", ["Remote"], True, True),
+        ("LLM Researcher", ["San Francisco, CA"], False, False),
         ("Senior ML Engineer", ["Remote - UK"], True, False),
         ("Senior ML Engineer", ["London, UK"], False, False),
         ("Research Scientist, LLM", ["San Francisco, CA"], False, False),
@@ -67,3 +68,39 @@ def test_word_boundaries(cfg):
 )
 def test_seniority(cfg, title, level):
     assert classify_seniority(title, cfg) == level
+
+
+@pytest.mark.parametrize(
+    "title,expected",
+    [  # real titles seen in live discovery
+        ("AI deployment engineer (West)", True),
+        ("Senior Software Engineer, AI Native Web Platform", True),
+        ("Training: ML Framework Engineer", True),
+        ("Deployed Architect, Professional Services (NYC)", True),
+        ("Sr. Forward Deployed Engineer (FDE) - Retail", True),
+        ("Applied AI Engineer, Sign in with ChatGPT", True),
+        ("Member of Technical Staff (Software Engineer, Applied AI)", True),
+        ("Product Manager, Agent Harness & Modelling", False),
+        ("Technical Program Manager, Safeguards (Infrastructure & Evals)", False),
+        ("Member of Technical Staff (TPM, Inference)", False),
+        ("Strategist, Agent Development - Public Sector", False),
+        ("Forward Deployed Strategist", False),
+        ("Agent Development Manager", False),
+        ("Manager, Forward Deployed Engineering- NYC", False),
+        ("Applied AI Delivery Lead", False),
+        ("Research Engineer/Research Scientist, RL/Reasoning", False),
+        ("Mechanical Engineer, Hardware Systems", False),
+        ("Staff Software Engineer - Backend", False),
+        ("Technical Sourcer, AI", False),
+        ("Transformative AI Research Economist, Economic Research", False),
+        ("AI Scientist", False),
+        ("Staff Software Engineer, AI Runtime", True),
+        ("Software Engineer, CI/CD & ML Infrastructure", True),
+        ("Research Engineer / Scientist, Data & Evals", False),
+        ("Quality Lead, Gen AI", False),
+        ("Security Risk & Compliance, Agent Security", False),
+        ("Applied AI Architect, Commercial", True),
+    ],
+)
+def test_real_world_titles(cfg, title, expected):
+    assert evaluate(title, ["San Francisco, CA"], False, cfg).title_ok is expected

@@ -17,6 +17,9 @@ from ..config import get_settings
 class FilterConfig:
     title_include: list[str]
     title_exclude: list[str]
+    title_weak_include: list[str]
+    role_words: list[str]
+    require_role_word: bool
     allow_unleveled: bool
     seniority_include: list[str]
     seniority_exclude: list[str]
@@ -34,6 +37,9 @@ class FilterConfig:
         return cls(
             title_include=[x.lower() for x in t.get("include", [])],
             title_exclude=[x.lower() for x in t.get("exclude", [])],
+            title_weak_include=[x.lower() for x in t.get("weak_include", [])],
+            role_words=[x.lower() for x in t.get("role_words", [])],
+            require_role_word=bool(t.get("require_role_word", False)),
             allow_unleveled=bool(s.get("allow_unleveled", True)),
             seniority_include=[str(x).lower() for x in s.get("include", [])],
             seniority_exclude=[str(x).lower() for x in s.get("exclude", [])],
@@ -133,10 +139,16 @@ def evaluate(
 ) -> FilterResult:
     t = title.lower()
     reasons: list[str] = []
+    has_role = _any(t, cfg.role_words) is not None
     inc = _any(t, cfg.title_include)
+    if inc is None and has_role and _any(t, cfg.title_weak_include):
+        inc = "weak+role"
+    if inc is not None and cfg.require_role_word and not has_role:
+        reasons.append("title is not an engineering role")
+        inc = None
     exc = _any(t, cfg.title_exclude)
     title_ok = inc is not None and exc is None
-    if inc is None:
+    if inc is None and not reasons:
         reasons.append("title has no target keyword")
     if exc is not None:
         reasons.append(f"title excluded by '{exc}'")

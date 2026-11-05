@@ -161,11 +161,24 @@ def upsert_postings(db: Session, company: Company, postings: list[NormalizedPost
             closed.append(job)
 
     new_matching = [j for j in new_jobs if j.matches_filter]
+    # Many companies post one role per city ("Sr. FDE - Retail" × 12 locations). Every posting stays
+    # browsable under Jobs, but only the first gets a pipeline card so "Discovered" stays a usable inbox.
+    tracked_titles = {
+        t.lower()
+        for (t,) in db.execute(select(Job.title).join(Application, Application.job_id == Job.id).where(Job.company_id == company.id))
+    }
+    carded: list[Job] = []
     for j in new_matching:
+        key = j.title.lower()
+        if key in tracked_titles:
+            continue
+        tracked_titles.add(key)
         ensure_application(db, j)
+        carded.append(j)
     return {
         "new": new_jobs,
         "new_matching": new_matching,
+        "carded": carded,
         "closed": closed,
         "reopened": reopened,
         "seen": len(seen),
@@ -196,6 +209,7 @@ def run_discovery(trigger: str = "manual", *, client: PoliteClient | None = None
         now = utcnow()
         stats: list[dict[str, Any]] = []
         all_new_matching: list[Job] = []
+        all_carded: list[Job] = []
         closed_in_pipeline: list[Job] = []
         totals = {"fetched": 0, "new": 0, "closed": 0}
 
@@ -228,6 +242,7 @@ def run_discovery(trigger: str = "manual", *, client: PoliteClient | None = None
                 totals["new"] += len(res["new"])
                 totals["closed"] += len(res["closed"])
                 all_new_matching += res["new_matching"]
+                all_carded += res["carded"]
                 closed_in_pipeline += [j for j in res["closed"] if j.application is not None and j.application.stage not in ("discovered",)]
             stats.append(entry)
             db.commit()
@@ -266,8 +281,8 @@ def run_discovery(trigger: str = "manual", *, client: PoliteClient | None = None
         db.commit()
 
         # Auto-score new matching jobs (bounded — cost guard).
-        if s.auto_score_new and all_new_matching:
-            run.scored_count = _auto_score(db, all_new_matching, s.max_auto_scores_per_run)
+        if s.auto_score_new and all_carded:
+            run.scored_count = _auto_score(db, all_carded, s.max_auto_scores_per_run)
         run.finished_at = utcnow()
         db.commit()
         log.info(

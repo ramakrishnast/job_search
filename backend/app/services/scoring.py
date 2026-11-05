@@ -170,10 +170,12 @@ def heuristic_score(job: Job, profile: Profile) -> dict[str, Any]:
     have = [k for k in wanted if _hits(resume, SKILL_LEXICON[k])]
     missing = [k for k in wanted if k not in have]
     coverage = len(have) / len(wanted) if wanted else 0.5
+    # Few detected skill areas = little evidence: shrink toward the middle instead of claiming a perfect fit.
+    confidence = min(1.0, len(wanted) / 5)
     years = re.findall(r"(\d{1,2})\+?\s*(?:years|yrs)", jd.lower())
     years_req = max((int(y) for y in years if int(y) < 30), default=None)
-    years_bonus = 15 if (years_req is None or years_req <= 12) else 5
-    score = round(min(100, 15 + coverage * 70 + years_bonus))
+    years_bonus = 10 if (years_req is None or years_req <= 12) else 0
+    score = round(min(90, 20 + coverage * confidence * 60 + (1 - confidence) * 15 + years_bonus))
     verdict = verdict_for_score(score)
     strengths = [f"Resume mentions {k} which the JD asks for" for k in have[:3]]
     while len(strengths) < 3:

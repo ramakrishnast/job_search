@@ -343,7 +343,11 @@ def pipeline(db: Session = Depends(get_db), include_closed_discovered: bool = Fa
     ).all()
     columns: dict[str, list[dict[str, Any]]] = {s: [] for s in STAGES}
     for a in apps:
-        if a.stage == "discovered" and a.job.closed_at is not None and not include_closed_discovered:
+        # "Discovered" is the inbox: hide postings that closed or no longer match the filters
+        # (e.g. after editing filters.yaml). Anything you've acted on stays visible.
+        if a.stage == "discovered" and (
+            (a.job.closed_at is not None and not include_closed_discovered) or (not a.job.matches_filter and a.job.source != "manual")
+        ):
             continue
         item = ser.job_summary(a.job, ph)
         item["application"] = ser.application(a)

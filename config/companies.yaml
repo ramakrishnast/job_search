@@ -16,8 +16,7 @@ companies:
   # Frontier labs
   - { name: Anthropic,        ats: greenhouse, slug: anthropic,      category: frontier_lab }
   - { name: OpenAI,           ats: ashby,      slug: openai,         category: frontier_lab }
-  - { name: Google DeepMind,  ats: greenhouse, slug: deepmind,       category: frontier_lab }
-  - { name: Mistral AI,       ats: lever,      slug: mistral,        category: frontier_lab }
+  - { name: Mistral AI,       ats: ashby,      slug: mistral.ai,     category: frontier_lab }
   - { name: Cohere,           ats: ashby,      slug: cohere,         category: frontier_lab }
 
   # AI products / scale-ups
@@ -36,9 +35,11 @@ companies:
   - { name: LangChain,        ats: ashby,      slug: langchain,      category: ai_startup }
   - { name: Writer,           ats: ashby,      slug: writer,         category: ai_startup }
   - { name: Abridge,          ats: ashby,      slug: abridge,        category: ai_startup }
-  - { name: Hebbia,           ats: ashby,      slug: hebbia,         category: ai_startup }
+  - { name: Hebbia,           ats: ashby,      slug: hebbia-ai,      category: ai_startup }
 
   # No Greenhouse/Lever/Ashby feed — checked by hand (links open the official careers search).
+  # Google DeepMind now posts through Google Careers.
+  - { name: Google DeepMind, ats: manual, careers_url: "https://www.google.com/about/careers/applications/jobs/results?company=DeepMind", category: frontier_lab }
   - { name: Hugging Face, ats: manual, careers_url: "https://apply.workable.com/huggingface/", category: ai_startup }
   - { name: Google,       ats: manual, careers_url: "https://www.google.com/about/careers/applications/jobs/results/?q=%22applied%20ai%22", category: big_tech }
   - { name: Meta,         ats: manual, careers_url: "https://www.metacareers.com/jobs?q=machine%20learning%20engineer", category: big_tech }

@@ -26,12 +26,22 @@ title:
     - inference
     - model behavior
     - evals
+    - deployment engineer
+    - deployed engineer
+    - deployed architect
+  # Weak keywords count as a match on their own ("Software Engineer, AI Runtime").
+  weak_include: [ai, ml]
+  # Every matching title must also name an engineering role — this drops "Quality Lead, Gen AI",
+  # "Agent Development Manager", "Technical Sourcer, AI", etc.
+  require_role_word: true
+  role_words: [engineer, engineering, developer, architect, member of technical staff, mts, swe]
   # Any of these rejects the posting even if an include matched.
   exclude:
     - intern
     - internship
     - new grad
     - research scientist
+    - scientist        # remove to include Applied Scientist roles
     - research intern
     - phd resident
     - recruiter
@@ -48,6 +58,25 @@ title:
     - accountant
     - people partner
     - engineering manager
+    - manager          # PM / TPM / EM / "Agent Development Manager" — IC engineering roles only
+    - product manager
+    - program manager
+    - tpm
+    - strategist
+    - delivery lead
+    - transformation
+    - analyst
+    - operations
+    - partnerships
+    - customer success
+    - technical writer
+    - go-to-market
+    - support engineer
+    - sourcer
+    - economist
+    - compliance
+    - fellow
+    - gtm
     - head of
     - director
     - vp

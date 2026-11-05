@@ -85,3 +85,9 @@ def test_heuristic_reports_gaps(db):
     job = make_job(db, text="Requires Rust, Kubernetes, fine-tuning with LoRA, and PyTorch.")
     h = heuristic_score(job, get_profile(db))
     assert any("Fine-tuning" in g or "PyTorch" in g for g in h["gaps"])
+
+
+def test_heuristic_is_not_overconfident_on_thin_jds(db):
+    thin = make_job(db, text="Work with customers in production.")
+    h = heuristic_score(thin, get_profile(db))
+    assert h["score"] < 75  # 2/2 keyword areas is weak evidence, not a "Strong" fit
